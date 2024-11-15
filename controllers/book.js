@@ -1,7 +1,7 @@
 import Book from "../models/Book.js";
 
 export const fetchBooks = async (req, res) => {
-  const books = await Book.find();
+  const books = await Book.find().populate("author").populate("categories");
   res.status(200).json({ model: books, message: "success" });
 };
 
@@ -26,7 +26,15 @@ export const updateBook = async (req, res) => {
 };
 
 export const getBook = async (req, res) => {
-  console.log("id", req.params.id);
-  const book = await Book.findOne({ _id: req.params.id });
-  res.status(200).json({ model: book, message: "success" });
+  try {
+    const book = await Book.findOne({ _id: req.params.id })
+      .populate("author")
+      .populate("categories");
+
+    if (!book) return res.status(404).json({ message: "Book not found" });
+
+    res.status(200).json({ model: book, message: "success" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
