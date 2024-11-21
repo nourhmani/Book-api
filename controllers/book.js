@@ -1,4 +1,5 @@
 import Book from "../models/Book.js";
+import Author from "../models/Author.js";
 
 export const fetchBooks = async (req, res) => {
   const books = await Book.find().populate("author").populate("categories");
@@ -6,10 +7,23 @@ export const fetchBooks = async (req, res) => {
 };
 
 export const createBook = async (req, res) => {
-  console.log("req", req.body);
-  const book = new Book(req.body);
-  await book.save();
-  res.status(201).json({ model: book, message: "success" });
+  try {
+    const { author } = req.body;
+
+    const existingBooks = await Book.find({ author });
+
+    if (existingBooks.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Author must have at least one other book." });
+    }
+
+    const book = new Book(req.body);
+    await book.save();
+    res.status(201).json({ model: book, message: "success" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 export const deleteBook = async (req, res) => {

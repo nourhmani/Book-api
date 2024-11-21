@@ -1,4 +1,6 @@
 import Book from "../models/Book.js";
+import { validateBook } from "../middlewares/validateBook.js";
+
 import express from "express";
 import {
   fetchBooks,
@@ -11,7 +13,7 @@ const router = express.Router();
 //routes
 router.get("/", fetchBooks);
 router.get("/:id", getBook);
-router.post("/", createBook);
+router.post("/", validateBook, createBook);
 router.patch("/:id", updateBook);
 router.delete("/:id", deleteBook);
 
